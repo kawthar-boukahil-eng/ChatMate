@@ -1,77 +1,17 @@
-.navbar {
-    background-color: #f8f9fa; /* Optional: Change as needed */
-    padding: 10px 0;
+
+#typewriter {
+    font-size: 2rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid black;
+    animation: blink 0.7s steps(2) infinite;
 }
 
-.navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Space between icon and text */
-    font-size: 24px;
-}
-
-.navbar-nav {
-    display: flex;
-    gap: 20px; /* Adds space between links */
-}
-
-.nav-link {
-    font-size: 18px;
-    color: #000;
-    text-transform: capitalize;
-}
-
-.container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-@media (max-width: 991px) {
-    .navbar-collapse {
-        justify-content: center; /* Center links on smaller screens */
+/* Blinking cursor effect */
+@keyframes blink {
+    50% {
+        border-color: transparent;
     }
 }
-.container {
-    width: 100%;              /* Full width */
-    height: 100vh;             /* Full height of the viewport */
-    background-color: #333;    /* Example background color */
-    background-size: cover;    /* Ensure the background image covers the section (if any) */
-    background-position: center;
-    padding: 20px;             /* Optional: Add padding if needed */
-}
-
-h1, h6 {
-    margin: 0; /* Remove default margin for better alignment */
-}
-
-.hero-section {
-    height: 100vh; /* Full height */
-    background-color: #333; /* Optional: Background color */
-    padding: 20px;
-}
-
-.img-fluid {
-    max-width: 100%;  /* Ensure the image stays responsive */
-    height: auto;
-}
-
-
-#navbarNav {
-    display: flex;
-    justify-content: center;  /* Centers horizontally */
-    align-items: center;      /* Centers vertically */
-    height: 100vh;            /* Full page height if needed */
-}
-
-.navbar-nav {
-    display: flex;
-    gap: 20px;  /* Adds space between items */
-}
-
-.nav-link {
-    font-size: 18px;
-    color: #000; /* Set a color if needed */
-}
-
 

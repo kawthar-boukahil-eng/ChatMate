@@ -486,12 +486,13 @@ strong {
   HERO        
 -----------------------------------------*/
 .hero-section {
-  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  background-color: #dfebe9 !important;
   position: relative;
   overflow: hidden;
   padding-top: 150px;
   padding-bottom: 150px;
 }
+
 
 .hero-section .input-group {
   background-color: var(--white-color);
