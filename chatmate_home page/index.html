@@ -63,7 +63,7 @@ https://templatemo.com/tm-590-topic-listing
             
                     <!-- Mobile Icon -->
                     <div class="d-lg-none ms-auto me-4">
-                        <a href="#top" class="navbar-icon bi-person smoothscroll"></a>
+                        <a href="" class="navbar-icon bi-person smoothscroll"></a>
                     </div>
             
                     <!-- Toggler Button for Mobile -->
@@ -97,7 +97,6 @@ https://templatemo.com/tm-590-topic-listing
             </nav>
             
             
-
             <section class="hero-section d-flex align-items-center" id="section_1" style="background-color: #dfebe9 !important;">
                 <div class="container">
                     <div class="row">
@@ -105,13 +104,14 @@ https://templatemo.com/tm-590-topic-listing
                             <img src="images/chat.png" alt="Chat Icon" class="img-fluid">
                         </div>
                         <div class="col-lg-6 col-12 d-flex flex-column justify-content-center">
-                            <h1 class=" text-end "id="typing">Connect Minds. Share Ideas.</h1>
-
-                            <h6 class="text-end">A world of conversations at your fingertips.</h6>
+                            <h1 class="text-end" id="typing-h1"></h1> <!-- Empty h1 for typing effect -->
+                            <h6 class="text-end" id="typing-h6"></h6> <!-- Empty h6 for typing effect -->
                         </div>
                     </div>
                 </div>
             </section>
+            
+          
             
             
 
@@ -714,5 +714,41 @@ https://templatemo.com/tm-590-topic-listing
         <script src="js/click-scroll.js"></script>
         <script src="js/custom.js"></script>
         <script src="js/script.js"></script>
+        <script>
+            // Define the texts for h1 and h6
+            const texts = [
+                "Connect Minds. Share Ideas.", // Text for h1
+                "A world of conversations at your fingertips..." // Text for h6
+            ];
+            
+            // Function to type text character by character
+            function typeText(elementId, text, delay) {
+                const element = document.getElementById(elementId);
+                let index = 0;
+        
+                // Add blinking cursor to the element
+                element.classList.add('blinking-cursor');
+        
+                function typeCharacter() {
+                    if (index < text.length) {
+                        element.textContent += text.charAt(index); // Add one character at a time
+                        index++;
+                        setTimeout(typeCharacter, delay); // Wait before the next character
+                    } else {
+                        // Remove blinking cursor after typing is complete
+                        element.classList.remove('blinking-cursor');
+                    }
+                }
+        
+                typeCharacter(); // Start the typing effect
+            }
+        
+            // Start typing the texts when the window loads
+            window.onload = function() {
+                typeText('typing-h1', texts[0], 150); // Typing effect for h1
+                setTimeout(() => typeText('typing-h6', texts[1], 150), texts[0].length * 150 + 500); // Typing effect for h6 after h1
+            };
+        </script>
+        
     </body>
 </html>

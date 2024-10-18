@@ -1,17 +1,19 @@
 
-#typewriter {
-    font-size: 2rem;
+#typing-h1, #typing-h6 {
+    font-size: 2rem; /* Adjust font size as needed */
     font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    border-right: 2px solid black;
-    animation: blink 0.7s steps(2) infinite;
+    display: inline-block; /* Ensure the text occupies only the necessary space */
+}
+
+.blinking-cursor {
+    border-right: 2px solid black; /* Cursor effect */
+    animation: blink 0.7s steps(1) infinite; /* Blinking effect */
 }
 
 /* Blinking cursor effect */
 @keyframes blink {
     50% {
-        border-color: transparent;
+        border-color: transparent; /* Hide cursor */
     }
 }
 
