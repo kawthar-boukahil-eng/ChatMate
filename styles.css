@@ -1,0 +1,23 @@
+.online {
+    color: green;
+    font-weight: bold;
+}
+
+.offline {
+    color: red;
+    font-weight: normal;
+}
+#searchResults {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#searchResults div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+#searchResults div:hover {
+    background-color: #f0f0f0;
+}
