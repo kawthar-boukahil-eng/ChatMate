@@ -1,24 +1,20 @@
 <?php
-$host = 'localhost';
-$dbname = 'chat_app';
-$username = 'root';
-$password = '';
+session_start();
+require 'db.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$user_id = $_SESSION['user_id'];
+$friend_id = $_GET['friend_id'];
 
-    $stmt = $pdo->query("SELECT users.username, messages.message, messages.sent_at 
-                         FROM messages 
-                         JOIN users ON messages.user_id = users.id 
-                         ORDER BY messages.sent_at ASC");
+// Fetch messages between the logged-in user and the selected friend
+$query = $db->prepare("SELECT * FROM messages 
+                       WHERE (sender_id = ? AND receiver_id = ?) 
+                       OR (sender_id = ? AND receiver_id = ?) 
+                       ORDER BY timestamp ASC");
+$query->execute([$user_id, $friend_id, $friend_id, $user_id]);
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        echo "<div><strong>" . htmlspecialchars($row['username']) . ":</strong> " 
-             . htmlspecialchars($row['message']) . " <small>(" 
-             . $row['sent_at'] . ")</small></div>";
-    }
-} catch (PDOException $e) {
-    die("Database error: " . $e->getMessage());
+$messages = $query->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($messages as $message) {
+    echo "<div>{$message['content']}</div>";
 }
 ?>

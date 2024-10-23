@@ -1,22 +1,15 @@
 <?php
 session_start();
+require 'db.php';
 
-if (!isset($_SESSION['user_id']) || empty($_POST['message'])) {
-    exit();
-}
+$user_id = $_SESSION['user_id'];
+$friend_id = $_POST['friend_id'];
+$message = $_POST['message'];
 
-$host = 'localhost';
-$dbname = 'chat_app';
-$username = 'root';
-$password = '';
+// Insert the message into the database
+$query = $db->prepare("INSERT INTO messages (sender_id, receiver_id, content) 
+                       VALUES (?, ?, ?)");
+$query->execute([$user_id, $friend_id, $message]);
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $stmt = $pdo->prepare("INSERT INTO messages (user_id, message) VALUES (?, ?)");
-    $stmt->execute([$_SESSION['user_id'], trim($_POST['message'])]);
-} catch (PDOException $e) {
-    die("Database error: " . $e->getMessage());
-}
+echo "Message sent!";
 ?>

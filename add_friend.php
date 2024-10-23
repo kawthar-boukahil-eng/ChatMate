@@ -1,17 +1,11 @@
 <?php
-include 'db_connection.php'; // Include your database connection file
+session_start();
+require 'db.php';
 
-if (isset($_POST['friend_id'])) {
-    $friendId = $_POST['friend_id'];
-    $userId = $_SESSION['user_id']; // Get the logged-in user's ID
+$user_id = $_SESSION['user_id'];
+$friend_id = $_POST['friend_id'];
 
-    // Insert into the friends table
-    $stmt = $conn->prepare("INSERT INTO friends (user_id, friend_id) VALUES (?, ?)");
-    $stmt->bind_param("ii", $userId, $friendId);
-    if ($stmt->execute()) {
-        echo "Friend request sent!";
-    } else {
-        echo "Error sending friend request.";
-    }
-}
-?>
+// Add the friend to the friendships table
+$query = $db->prepare("INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)");
+$query->execute([$user_id, $friend_id]);
+echo "Friend request sent!";?>

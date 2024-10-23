@@ -1,60 +1,37 @@
 <?php
-include 'db_connection.php'; // Include your database connection file
+session_start();
+$host = 'localhost';
+$dbname = 'chat_app';
+$db_user = 'root';  // Renamed to avoid confusion with username in query
+$db_password = '';
 
-if (isset($_POST['search'])) {
-    $searchTerm = $_POST['searchTerm'];
-    $userId = $_SESSION['user_id']; // Get the logged-in user's ID
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $db_user, $db_password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $conn->prepare("SELECT id, username, profile_pic FROM users WHERE username LIKE ? AND id != ?");
-    $searchTerm = "%" . $searchTerm . "%"; // Prepare the search term for wildcard search
-    $stmt->bind_param("si", $searchTerm, $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $searchTerm = $_GET['username'] ?? ''; // Use a meaningful variable name
 
-    // Output the search results
-    while ($row = $result->fetch_assoc()) {
-        // Display user info and a button to add as a friend
-        echo "<div>";
-        echo "<img src='" . $row['profile_pic'] . "' alt='" . $row['username'] . "' />";
-        echo "<p>" . $row['username'] . "</p>";
-        echo "<button onclick='addFriend(" . $row['id'] . ")'>Add Friend</button>";
-        echo "</div>";
-    }
-}
-?>
-<?php
-// Database connection
-$conn = new mysqli("localhost", "username", "password", "chat_app");
+    // Prepare the SQL statement to search for users who are NOT friends
+    $stmt = $pdo->prepare("
+        SELECT id, username FROM users 
+        WHERE username LIKE :searchTerm 
+        AND id != :user_id
+        AND id NOT IN (
+            SELECT friend_id FROM friendships WHERE user_id = :user_id
+        )
+    ");
+    
+    $stmt->execute([
+        ':searchTerm' => '%' . $searchTerm . '%',
+        ':user_id' => $_SESSION['user_id']
+    ]);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get the search term from the URL
-$username = $_GET['username'];
-
-// Prepare the SQL query
-$sql = "
-    SELECT u.username 
-    FROM users u
-    WHERE u.username LIKE ?";
-$stmt = $conn->prepare($sql);
-$searchTerm = "%$username%"; // Prepare the search term with wildcards
-$stmt->bind_param("s", $searchTerm); // Bind the parameter
-
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Fetch results
-$users = [];
-while ($row = $result->fetch_assoc()) {
-    $users[] = $row; // Collect matching users
-}
-
-// Return results as JSON
-echo json_encode($users);
-
-$stmt->close();
-$conn->close();
-?>
-
+    // Return the search results as a JSON response
+    echo json_encode($results);
+} catch (PDOException $e) {
+    // Return an error message as JSON with HTTP 500 status
+    echo json_encode(['error' => $e->getMessage()]);
+    http_response_code(500);
+}?>
