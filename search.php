@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php'; // Make sure to include your DB connection
+include 'db_connection.php'; // Make sure to include your database connection
 
 if (isset($_GET['username'])) {
     $username = $_GET['username'];
@@ -15,5 +15,7 @@ if (isset($_GET['username'])) {
         $users[] = $row;
     }
     echo json_encode($users);
+} else {
+    echo json_encode([]);
 }
 ?>
