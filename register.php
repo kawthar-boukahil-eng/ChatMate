@@ -20,58 +20,68 @@
 
         <button type="submit" name="register">Register</button>
     </form>
-</body>
-</html>
 
-
-
-<?php
-$host = 'localhost';
-$dbname = 'chat_app';
-$username = 'root';
-$password = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    <?php
+    session_start();
+    require 'db.php'; // Database connection
 
     if (isset($_POST['register'])) {
-        $user = trim($_POST['username']);
-        $pass = trim($_POST['password']);
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
         $profilePic = $_FILES['profile_pic'];
 
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$user]);
+        try {
+            // Check if the username already exists
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username LIMIT 1");
+            $stmt->execute([':username' => $username]);
 
-        if ($stmt->rowCount() > 0) {
-            echo "Username already exists. Try another.";
-        } else {
-            $hashedPassword = password_hash($pass, PASSWORD_BCRYPT);
-            $uploadDir = 'uploads/';
+            if ($stmt->rowCount() > 0) {
+                echo "<p style='color:red;'>Username already exists. Try another.</p>";
+            } else {
+                // Hash the password
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $profilePicPath = 'uploads/default.png'; // Default profile pic
-            if ($profilePic['error'] === UPLOAD_ERR_OK) {
-                $ext = pathinfo($profilePic['name'], PATHINFO_EXTENSION);
-                $newFilename = uniqid() . '.' . $ext;
-                $profilePicPath = $uploadDir . $newFilename;
-
-                if (!move_uploaded_file($profilePic['tmp_name'], $profilePicPath)) {
-                    echo "Failed to upload profile picture.";
-                    exit;
+                // Handle profile picture upload
+                $uploadDir = 'uploads/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
                 }
+
+                $profilePicPath = 'uploads/default.png'; // Default profile picture
+                if ($profilePic['error'] === UPLOAD_ERR_OK) {
+                    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $ext = strtolower(pathinfo($profilePic['name'], PATHINFO_EXTENSION));
+
+                    if (in_array($ext, $validExtensions)) {
+                        $newFilename = uniqid() . '.' . $ext;
+                        $profilePicPath = $uploadDir . $newFilename;
+
+                        if (!move_uploaded_file($profilePic['tmp_name'], $profilePicPath)) {
+                            echo "<p style='color:red;'>Failed to upload profile picture.</p>";
+                            exit();
+                        }
+                    } else {
+                        echo "<p style='color:red;'>Invalid file type. Only JPG, PNG, and GIF are allowed.</p>";
+                        exit();
+                    }
+                }
+
+                // Insert new user into the database
+                $stmt = $pdo->prepare(
+                    "INSERT INTO users (username, password, profile_pic) VALUES (:username, :password, :profile_pic)"
+                );
+                $stmt->execute([
+                    ':username' => $username,
+                    ':password' => $hashedPassword,
+                    ':profile_pic' => $profilePicPath
+                ]);
+
+                echo "<p style='color:green;'>Registration successful! <a href='login.php'>Login here</a></p>";
             }
-
-            $stmt = $pdo->prepare("INSERT INTO users (username, password, profile_pic) VALUES (?, ?, ?)");
-            $stmt->execute([$user, $hashedPassword, $profilePicPath]);
-
-            echo "Registration successful! <a href='login.php'>Login here</a>";
+        } catch (PDOException $e) {
+            echo "<p style='color:red;'>An error occurred: " . $e->getMessage() . "</p>";
         }
     }
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
-?>
+    ?>
+</body>
+</html>

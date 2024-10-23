@@ -138,7 +138,10 @@ if (!isset($_SESSION['user_id'])) {
             // Handle user search
             $("#search-button").on("click", function(e) {
                 const searchTerm = $("#search").val().trim();
-                if (searchTerm === "") return;
+                if (searchTerm === "") {
+                    $("#searchResults").empty(); // Clear results if search term is empty
+                    return;
+                }
 
                 $.get(`search.php?username=${encodeURIComponent(searchTerm)}`, function(data) {
                     const results = JSON.parse(data);
@@ -165,8 +168,9 @@ if (!isset($_SESSION['user_id'])) {
             // Handle add friend button
             $(document).on("click", ".add-friend", function() {
                 const friendId = $(this).data("id");
-                $.post("add_friend.php", { friend_id: friendId }, function() {
-                    alert("Friend request sent!");
+                $.post("add_friend.php", { friend_id: friendId }, function(response) {
+                    alert(response);
+                    loadFriends(); // Refresh friend list after adding
                 }).fail(function() {
                     console.error("Failed to send friend request.");
                 });

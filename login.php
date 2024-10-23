@@ -18,44 +18,35 @@
         <button type="submit" name="login">Login</button>
     </form>
     <p>Don't have an account? <a href="register.php">Register here</a></p>
-</body>
-</html>
-<?php
-session_start(); // Start the session
 
-$host = 'localhost';
-$dbname = 'chat_app';
-$username = 'root';
-$password = '';
-
-try {
-    // Connect to the database
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    <?php
+    session_start();
+    require 'db.php'; // Database connection
 
     if (isset($_POST['login'])) {
-        $user = trim($_POST['username']);
-        $pass = trim($_POST['password']);
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
 
-        // Check if user exists
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$user]);
-        $userRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
+            $stmt->execute([':username' => $username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($userRecord && password_verify($pass, $userRecord['password'])) {
-            // Login successful, set session variables
-            $_SESSION['user_id'] = $userRecord['id'];
-            $_SESSION['username'] = $userRecord['username'];
-            $_SESSION['profile_pic'] = $userRecord['profile_pic'];
+            if ($user && password_verify($password, $user['password'])) {
+                // Login successful
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['profile_pic'] = $user['profile_pic'];
 
-            // Redirect to chat page
-            header("Location: chat.php");
-            exit();
-        } else {
-            echo "Invalid username or password.";
+                header("Location: chat.php");
+                exit();
+            } else {
+                echo "<p style='color:red;'>Invalid username or password.</p>";
+            }
+        } catch (PDOException $e) {
+            echo "<p style='color:red;'>An error occurred: " . $e->getMessage() . "</p>";
         }
     }
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
-?>
+    ?>
+</body>
+</html>

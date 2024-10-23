@@ -1,12 +1,13 @@
+<!-- db.php -->
 <?php
-$host = 'localhost';
-$dbname = 'chat_app';
-$user = 'root'; // Replace with your MySQL username
-$pass = ''; // Replace with your MySQL password
+$host = 'localhost';      // Database host
+$dbname = 'chat_app';      // Database name
+$username = 'root'; // Replace with your DB username
+$password = ''; // Replace with your DB password
 
 try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
