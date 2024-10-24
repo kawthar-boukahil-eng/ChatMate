@@ -1,21 +1,23 @@
 <?php
-session_start();
-include 'db_connection.php'; // Make sure to include your database connection
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-if (isset($_GET['username'])) {
-    $username = $_GET['username'];
-    $stmt = $conn->prepare("SELECT id, username FROM users WHERE username LIKE ? LIMIT 10");
-    $stmt->bind_param("s", $usernameParam);
-    $usernameParam = "%" . $username . "%";
-    $stmt->execute();
-    $result = $stmt->get_result();
+require 'db.php';  // Include DB connection
 
-    $users = [];
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
-    echo json_encode($users);
-} else {
-    echo json_encode([]);
+$searchTerm = $_GET['username'] ?? '';
+if (empty($searchTerm)) {
+    echo json_encode([]);  // Return empty array if no search term
+    exit();
+}
+
+try {
+    $stmt = $pdo->prepare("SELECT id, username FROM users WHERE username LIKE ? LIMIT 10");
+    $stmt->execute(['%' . $searchTerm . '%']);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($results);  // Return valid JSON
+} catch (Exception $e) {
+    echo json_encode(['error' => $e->getMessage()]);  // Handle exceptions
 }
 ?>

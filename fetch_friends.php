@@ -1,21 +1,28 @@
 <?php
-session_start();
-require 'db.php'; // Adjust if your database connection is elsewhere
 
-if (!isset($_SESSION['user_id'])) {
-    echo "User not logged in.";
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require 'db.php';  // Make sure this path is correct
+
+session_start();
+
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    echo 'User not logged in.';
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+try {
+    $stmt = $pdo->prepare("SELECT id, username FROM users WHERE username = ?");
+    $stmt->execute([$userId]);
+    $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch friends from the database
-$query = $db->prepare("SELECT users.id, users.username FROM friendships JOIN users ON users.id = friendships.friend_id WHERE friendships.user_id = ?");
-$query->execute([$user_id]);
-
-$friends = $query->fetchAll(PDO::FETCH_ASSOC);
-
-foreach ($friends as $friend) {
-    echo "<div class='friend list-group-item' data-id='{$friend['id']}'>{$friend['username']}</div>";
+    foreach ($friends as $friend) {
+        echo '<div class="friend" data-id="' . $friend['id'] . '">' . htmlspecialchars($friend['username']) . '</div>';
+    }
+} catch (PDOException $e) {
+    echo 'Error: ' . $e->getMessage();
 }
 ?>
